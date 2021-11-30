@@ -149,7 +149,7 @@
 
     export default Counter;
     ```
-  - useState를 사용할 때에는 상태의 기본값을 파라미터로 넣어서 호출함
+  - `useState`를 사용할 때에는 상태의 기본값을 파라미터로 넣어서 호출함
   - 첫번째 원소는 현재 상태, 두번째 원소는 Setter 함수임
 - input 상태 관리
   - ```JSX
@@ -334,5 +334,334 @@
 
     export default UserList;
     ```
-- key값도 같이 넘겨줘야 효율적인 렌더링이 가능
-- 
+  - `key값도 같이 넘겨줘야 효율적인 렌더링이 가능`
+- useRef로 컴포넌트 안의 변수 생성
+  - 예시
+  - ```JSX
+    import React, { useRef } from 'react';
+    import UserList from './UserList';
+
+    function App() {
+      const users = [
+        {
+          id: 1,
+          username: 'velopert',
+          email: 'public.velopert@gmail.com'
+        },
+        {
+          id: 2,
+          username: 'tester',
+          email: 'tester@example.com'
+        },
+        {
+          id: 3,
+          username: 'liz',
+          email: 'liz@example.com'
+        }
+      ];
+
+      const nextId = useRef(4);
+      const onCreate = () => {
+        // 나중에 구현 할 배열에 항목 추가하는 로직
+        // ...
+
+        nextId.current += 1;
+      };
+      return <UserList users={users} />;  
+    }
+
+    export default App;
+    ```
+- 배열 항목 추가
+  - 예시
+  - ```JSX
+    import React from 'react';
+
+    function CreateUser({ username, email, onChange, onCreate }) {
+      return (
+        <div>
+          <input
+            name="username"
+            placeholder="계정명"
+            onChange={onChange}
+            value={username}
+          />
+          <input
+            name="email"
+            placeholder="이메일"
+            onChange={onChange}
+            value={email}
+          />
+          <button onClick={onCreate}>등록</button>
+        </div>
+      );
+    }
+
+    export default CreateUser;
+    ```
+  - ```JSX
+    import React, { useRef, useState } from 'react';
+    import UserList from './UserList';
+    import CreateUser from './CreateUser';
+
+    function App() {
+      const [inputs, setInputs] = useState({
+        username: '',
+        email: ''
+      });
+      const { username, email } = inputs;
+      const onChange = e => {
+        const { name, value } = e.target;
+        setInputs({
+          ...inputs,
+          [name]: value
+        });
+      };
+      const [users, setUsers] = useState([
+        {
+          id: 1,
+          username: 'velopert',
+          email: 'public.velopert@gmail.com'
+        },
+        {
+          id: 2,
+          username: 'tester',
+          email: 'tester@example.com'
+        },
+        {
+          id: 3,
+          username: 'liz',
+          email: 'liz@example.com'
+        }
+      ]);
+
+      const nextId = useRef(4);
+      const onCreate = () => {
+        const user = {
+          id: nextId.current,
+          username,
+          email
+        };
+
+        #둘 중 하나
+        setUsers(users.concat(user));
+        setUsers([...users, user]);
+
+        setInputs({
+          username: '',
+          email: ''
+        });
+        nextId.current += 1;
+      };
+      return (
+        <>
+          <CreateUser
+            username={username}
+            email={email}
+            onChange={onChange}
+            onCreate={onCreate}
+          />
+          <UserList users={users} />
+        </>
+      );
+    }
+
+    export default App;
+    ```
+  - 불변성을 지키면서 배열에 새 항목을 넣기 위해 `spread` 연산자나 `concat` 함수 사용
+- 배열 항목 제거
+  - ```
+    import React, { useRef, useState } from 'react';
+    import UserList from './UserList';
+    import CreateUser from './CreateUser';
+
+    function App() {
+      const [inputs, setInputs] = useState({
+        username: '',
+        email: ''
+      });
+      const { username, email } = inputs;
+      const onChange = e => {
+        const { name, value } = e.target;
+        setInputs({
+          ...inputs,
+          [name]: value
+        });
+      };
+      const [users, setUsers] = useState([
+        {
+          id: 1,
+          username: 'velopert',
+          email: 'public.velopert@gmail.com'
+        },
+        {
+          id: 2,
+          username: 'tester',
+          email: 'tester@example.com'
+        },
+        {
+          id: 3,
+          username: 'liz',
+          email: 'liz@example.com'
+        }
+      ]);
+
+      const nextId = useRef(4);
+      const onCreate = () => {
+        const user = {
+          id: nextId.current,
+          username,
+          email
+        };
+        setUsers(users.concat(user));
+
+        setInputs({
+          username: '',
+          email: ''
+        });
+        nextId.current += 1;
+      };
+
+      const onRemove = id => {
+        // user.id 가 파라미터로 일치하지 않는 원소만 추출해서 새로운 배열을 만듬
+        // = user.id 가 id 인 것을 제거함
+        setUsers(users.filter(user => user.id !== id));
+      };
+      return (
+        <>
+          <CreateUser
+            username={username}
+            email={email}
+            onChange={onChange}
+            onCreate={onCreate}
+          />
+          <UserList users={users} onRemove={onRemove} />
+        </>
+      );
+    }
+
+    export default App;
+    ```
+  - 불변성을 지키기 위해 filter 함수 사용
+- 배열 항목 수정
+  - ```JSX
+    import React, { useRef, useState } from 'react';
+    import UserList from './UserList';
+    import CreateUser from './CreateUser';
+
+    function App() {
+      const [inputs, setInputs] = useState({
+        username: '',
+        email: ''
+      });
+      const { username, email } = inputs;
+      const onChange = e => {
+        const { name, value } = e.target;
+        setInputs({
+          ...inputs,
+          [name]: value
+        });
+      };
+      const [users, setUsers] = useState([
+        {
+          id: 1,
+          username: 'velopert',
+          email: 'public.velopert@gmail.com',
+          active: true
+        },
+        {
+          id: 2,
+          username: 'tester',
+          email: 'tester@example.com',
+          active: false
+        },
+        {
+          id: 3,
+          username: 'liz',
+          email: 'liz@example.com',
+          active: false
+        }
+      ]);
+
+      const nextId = useRef(4);
+      const onCreate = () => {
+        const user = {
+          id: nextId.current,
+          username,
+          email
+        };
+        setUsers(users.concat(user));
+
+        setInputs({
+          username: '',
+          email: ''
+        });
+        nextId.current += 1;
+      };
+
+      const onRemove = id => {
+        // user.id 가 파라미터로 일치하지 않는 원소만 추출해서 새로운 배열을 만듬
+        // = user.id 가 id 인 것을 제거함
+        setUsers(users.filter(user => user.id !== id));
+      };
+      const onToggle = id => {
+        setUsers(
+          users.map(user =>
+            user.id === id ? { ...user, active: !user.active } : user
+          )
+        );
+      };
+      return (
+        <>
+          <CreateUser
+            username={username}
+            email={email}
+            onChange={onChange}
+            onCreate={onCreate}
+          />
+          <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+        </>
+      );
+    }
+
+    export default App;
+    ```
+  - ```JSX
+    import React from 'react';
+
+    function User({ user, onRemove, onToggle }) {
+      return (
+        <div>
+          <b
+            style={{
+              cursor: 'pointer',
+              color: user.active ? 'green' : 'black'
+            }}
+            onClick={() => onToggle(user.id)}
+          >
+            {user.username}
+          </b>
+          &nbsp;
+          <span>({user.email})</span>
+          <button onClick={() => onRemove(user.id)}>삭제</button>
+        </div>
+      );
+    }
+
+    function UserList({ users, onRemove, onToggle }) {
+      return (
+        <div>
+          {users.map(user => (
+            <User
+              user={user}
+              key={user.id}
+              onRemove={onRemove}
+              onToggle={onToggle}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    export default UserList;
+    ```
