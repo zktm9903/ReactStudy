@@ -151,4 +151,188 @@
     ```
   - useState를 사용할 때에는 상태의 기본값을 파라미터로 넣어서 호출함
   - 첫번째 원소는 현재 상태, 두번째 원소는 Setter 함수임
-  
+- input 상태 관리
+  - ```JSX
+    import React from 'react';
+    import InputSample from './InputSample';
+
+    function App() {
+      return (
+        <InputSample />
+      );
+    }
+
+    export default App;
+    ```
+  - ```JSX
+    import React, { useState } from 'react';
+
+    function InputSample() {
+      const [text, setText] = useState('');
+
+      const onChange = (e) => {
+        setText(e.target.value);
+      };
+
+      const onReset = () => {
+        setText('');
+      };
+
+      return (
+        <div>
+          <input onChange={onChange} value={text}  />
+          <button onClick={onReset}>초기화</button>
+          <div>
+            <b>값: {text}</b>
+          </div>
+        </div>
+      );
+    }
+
+    export default InputSample;
+    ```
+- 여러개의 input 상태 관리
+  - ```JSX
+    import React, { useState } from 'react';
+
+    function InputSample() {
+      const [inputs, setInputs] = useState({
+        name: '',
+        nickname: ''
+      });
+
+      const { name, nickname } = inputs; // 비구조화 할당을 통해 값 추출
+
+      const onChange = (e) => {
+      const { value, name } = e.target; // 우선 e.target 에서 name 과 value 를 추출
+      setInputs({
+        ...inputs, // 기존의 input 객체를 복사한 뒤
+        [name]: value // name 키를 가진 값을 value 로 설정
+      });
+      };
+
+      const onReset = () => {
+        setInputs({
+          name: '',
+          nickname: '',
+        })
+      };
+
+
+      return (
+        <div>
+          <input name="name" placeholder="이름" onChange={onChange} value={name} />
+          <input name="nickname" placeholder="닉네임" onChange={onChange} value={nickname}/>
+          <button onClick={onReset}>초기화</button>
+          <div>
+            <b>값: </b>
+            {name} ({nickname})
+          </div>
+        </div>
+      );
+    }
+
+    export default InputSample;
+    ```
+
+- useRef으로 특정 DOM 선택
+  - 초기화 버튼을 클릭했을 때 이름 input에 포커스가 잡히도록 useRef를 사용한 예시
+  - ```JSX
+    import React, { useState, useRef } from 'react';
+
+    function InputSample() {
+      const [inputs, setInputs] = useState({
+        name: '',
+        nickname: ''
+      });
+      const nameInput = useRef();
+
+      const { name, nickname } = inputs; // 비구조화 할당을 통해 값 추출
+
+      const onChange = e => {
+        const { value, name } = e.target; // 우선 e.target 에서 name 과 value 를 추출
+        setInputs({
+          ...inputs, // 기존의 input 객체를 복사한 뒤
+          [name]: value // name 키를 가진 값을 value 로 설정
+        });
+      };
+
+      const onReset = () => {
+        setInputs({
+          name: '',
+          nickname: ''
+        });
+        nameInput.current.focus();
+      };
+
+      return (
+        <div>
+          <input
+            name="name"
+            placeholder="이름"
+            onChange={onChange}
+            value={name}
+            ref={nameInput}
+          />
+          <input
+            name="nickname"
+            placeholder="닉네임"
+            onChange={onChange}
+            value={nickname}
+          />
+          <button onClick={onReset}>초기화</button>
+          <div>
+            <b>값: </b>
+            {name} ({nickname})
+          </div>
+        </div>
+      );
+    }
+
+    export default InputSample;
+    ```
+- 배열 렌더링
+  - 예시
+  - ```JSX
+    import React from 'react';
+
+    function User({ user }) {
+      return (
+        <div>
+          <b>{user.username}</b> <span>({user.email})</span>
+        </div>
+      );
+    }
+
+    function UserList() {
+      const users = [
+        {
+          id: 1,
+          username: 'velopert',
+          email: 'public.velopert@gmail.com'
+        },
+        {
+          id: 2,
+          username: 'tester',
+          email: 'tester@example.com'
+        },
+        {
+          id: 3,
+          username: 'liz',
+          email: 'liz@example.com'
+        }
+      ];
+
+      return (
+        <div>
+          {users.map(user => (
+          <User user={user} key={user.id} />
+          ))}
+        </div>
+      );
+    }
+
+    export default UserList;
+    ```
+- key값도 같이 넘겨줘야 효율적인 렌더링이 가능
+- 
