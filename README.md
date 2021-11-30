@@ -84,3 +84,71 @@
     }
     ```
 
+- 조건부 렌더링
+  - 특정 조건에 따라 다른 결과물을 렌더링 하는 것을 의미합니다.
+  - ```JSX
+    import React from 'react';
+    import Hello from './Hello';
+    import Wrapper from './Wrapper';
+
+
+    function App() {
+      return (
+        <Wrapper>
+          <Hello name="react" color="red" isSpecial={true}/>
+          <Hello color="pink" />
+        </Wrapper>
+      )
+    }
+
+    export default App;
+    ```
+  - ```JSX
+    import React from 'react';
+
+    function Hello({ color, name, isSpecial }) {
+      return (
+        <div style={{ color }}>
+          {isSpecial && <b>*</b>}
+          안녕하세요 {name}
+        </div>
+      );
+    }
+
+    Hello.defaultProps = {
+      name: '이름없음'
+    }
+
+    export default Hello;
+    ```
+- useState
+  - 상태관리 Hooks 기능 안에 있는 함수 중 하나
+  - 카운터 예시
+  - ```JSX
+    import React, { useState } from 'react';
+
+    function Counter() {
+      const [number, setNumber] = useState(0);
+
+      const onIncrease = () => {
+        setNumber(prevNumber => prevNumber + 1);
+      }
+
+      const onDecrease = () => {
+        setNumber(prevNumber => prevNumber - 1);
+      }
+
+      return (
+        <div>
+          <h1>{number}</h1>
+          <button onClick={onIncrease}>+1</button>
+          <button onClick={onDecrease}>-1</button>
+        </div>
+      );
+    }
+
+    export default Counter;
+    ```
+  - useState를 사용할 때에는 상태의 기본값을 파라미터로 넣어서 호출함
+  - 첫번째 원소는 현재 상태, 두번째 원소는 Setter 함수임
+  
